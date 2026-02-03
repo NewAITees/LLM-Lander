@@ -84,7 +84,7 @@ strict_equality = true
 pretty = true
 
 [[tool.mypy.overrides]]
-module = "pytest"
+module = ["pytest", "py3nvml.*", "huggingface_hub.*"]
 ignore_missing_imports = true
 
 # Pytest設定
