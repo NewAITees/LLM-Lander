@@ -2,6 +2,8 @@
 
 **LLM VRAM/Context Calculator** - Calculate maximum context length based on available VRAM for Large Language Models.
 
+[English README is here](README_EN.md)
+
 ## 概要
 
 LLM-Landerは、利用可能なVRAMから大規模言語モデル（LLM）の最大コンテキスト長を逆算するツールです。モデルのパラメータ数、量子化ビット数、KVキャッシュなどを考慮して、最適な設定を提案します。
@@ -20,8 +22,8 @@ LLM-Landerは、利用可能なVRAMから大規模言語モデル（LLM）の最
 
 ### Phase 3: データ連携・UI
 - **Hugging Face Hub API連携**: モデル名から自動で設定を取得
-- **GUI / Web UI**: Streamlitによる直感的なインターフェース
-- **可視化グラフ**: Plotlyによるコンテキスト長とVRAM使用量の推移表示
+- **GUI / Web UI（予定）**: Streamlitによる直感的なインターフェース
+- **可視化グラフ（予定）**: Plotlyによるコンテキスト長とVRAM使用量の推移表示
 
 ## 必要要件
 
@@ -43,8 +45,92 @@ uv sync
 ## 使い方
 
 ```bash
-# Streamlit UIの起動
+# Streamlit UIの起動（予定）
 uv run streamlit run src/llm_lander/app.py
+```
+
+```bash
+# CLI（計算結果の出力）
+python -m llm_lander
+```
+
+## 出力の読み方（CLI）
+
+```text
+=== qwen3-coder:30b (quant=Q4_K_M) (params=30.5B) ===
+free_vram_mb: 19101.03
+[INT4]
+  max_context_length: 267283
+  model_weight_mb: 14558.85
+  kv_cache_mb: 3132.22
+  total_memory_mb: 19101.02
+  fits_in_vram: True
+```
+
+- `=== ... ===`: モデル名、量子化形式、パラメータ数を表示
+- `free_vram_mb`: 計算時点の空きVRAM（MB）
+- `[INT4]` / `[INT8]` / `[FP16]`: 量子化精度ごとの結果
+- `max_context_length`: **空きVRAMに収まる最大トークン数（理論上の上限）**
+  - モデルが本来サポートする最大コンテキスト長と同義ではありません
+  - 実際の上限はモデル仕様（RoPE/位置埋め込み）や推論バックエンドの制約で小さくなることがあります
+- `model_weight_mb`: モデル重みの推定メモリ使用量（MB）
+- `kv_cache_mb`: **KVキャッシュ**（注意機構のKey/Valueを保存する推論用メモリ）の推定使用量（MB）
+- `total_memory_mb`: モデル重み + KVキャッシュ + オーバーヘッドの合計（MB）
+- `fits_in_vram`: 合計が空きVRAMに収まるかどうか
+
+## Output Explanation (CLI)
+
+```text
+=== qwen3-coder:30b (quant=Q4_K_M) (params=30.5B) ===
+free_vram_mb: 19101.03
+[INT4]
+  max_context_length: 267283
+  model_weight_mb: 14558.85
+  kv_cache_mb: 3132.22
+  total_memory_mb: 19101.02
+  fits_in_vram: True
+```
+
+- `=== ... ===`: Model name, quantization, parameter count
+- `free_vram_mb`: Available VRAM at calculation time (MB)
+- `[INT4]` / `[INT8]` / `[FP16]`: Results for each precision
+- `max_context_length`: **Maximum token count that fits in available VRAM (theoretical upper bound)**
+  - Not necessarily the model's built-in max context length
+  - Real usable max can be lower due to model limits (RoPE/positional embedding) or backend constraints
+- `model_weight_mb`: Estimated memory footprint of model weights (MB)
+- `kv_cache_mb`: Estimated **KV cache** memory (Key/Value tensors stored for attention during inference) (MB)
+- `total_memory_mb`: Total of weights + KV cache + overhead (MB)
+- `fits_in_vram`: Whether the total fits within available VRAM
+
+## ベンチマーク結果
+
+- 日本語: `docs/benchmark_results.md`
+- English: `docs/benchmark_results_en.md`
+
+## English (Quick Overview)
+
+LLM-Lander is a VRAM/context calculator for LLMs. It estimates the maximum context length that fits in available VRAM, based on model parameters, quantization, and KV cache size.
+
+### Requirements
+
+- Python 3.12+
+- NVIDIA GPU (CUDA)
+- Linux or Windows (Mac is not supported due to lack of NVIDIA GPUs)
+
+### Install
+
+```bash
+git clone https://github.com/your-username/LLM-Lander.git
+cd LLM-Lander
+uv sync
+```
+
+### Usage
+
+```bash
+# Streamlit UIの起動（予定）
+uv run streamlit run src/llm_lander/app.py
+python -m llm_lander
 ```
 
 ## 開発
@@ -92,8 +178,8 @@ uv run mypy src/llm_lander
 | GPU情報取得 | py3nvml |
 | モデル情報取得 | huggingface_hub |
 | 数値計算 | numpy |
-| UI | Streamlit |
-| 可視化 | Plotly |
+| UI（予定） | Streamlit |
+| 可視化（予定） | Plotly |
 | リント/フォーマット | Ruff |
 | 型チェック | Mypy |
 | テスト | Pytest |
